@@ -1,0 +1,25 @@
+
+# ---- Workflow Name -----#
+
+name: Deploy React App Frontend 
+
+#---- When it runs -----#
+
+on:
+  push:
+    branches:
+      - main
+#---- Jobs Section ------#
+
+jobs:
+  #---- Job Name -----#
+  build:
+    #---- Runs on a virtual machine provided by GitHub -----#
+    runs-on: ubuntu-latest
+    #---- What actually happens ----#
+    #---- CI : Continuous Integration-----#
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker login -u ${{ secrets.DOCKER_USERNAME  }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker build -t react-app-img-dev -f dockerfile.dev .
+      - run: docker run -e CI=true react-app-img-dev npm test
