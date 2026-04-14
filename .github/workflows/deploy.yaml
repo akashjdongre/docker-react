@@ -28,10 +28,9 @@ jobs:
 
       - run: docker push akashjdongre/react-app-img-dev:latest
 
-      # Create Dockerrun.aws.json
       - name: Create Dockerrun file
         run: |
-          cat <<EOF > Dockerrun.aws.json
+          cat > Dockerrun.aws.json << 'EOF'
           {
             "AWSEBDockerrunVersion": 1,
             "Image": {
@@ -45,8 +44,12 @@ jobs:
             ]
           }
           EOF
-      - run: cat Dockerrun.aws.json
       
+      - name: Debug Dockerrun
+        run: |
+          cat Dockerrun.aws.json
+          file Dockerrun.aws.json
+
       # Zip only Docker config
       - name: Zip deployment package
         run: zip -r deploy.zip Dockerrun.aws.json
