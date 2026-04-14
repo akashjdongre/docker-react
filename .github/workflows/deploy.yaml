@@ -1,62 +1,51 @@
-
-# ---- Workflow Name -----#
-
-name: Deploy React App Frontend 
-
-#---- When it runs -----#
+name: Deploy React App Frontend
 
 on:
   push:
     branches:
       - master
-#---- Jobs Section ------#
 
 jobs:
-  #---- Job Name -----#
   build:
-    #---- Runs on a virtual machine provided by GitHub -----#
     runs-on: ubuntu-latest
-    #---- What actually happens ----#
-    #---- CI : Continuous Integration-----#
+
     steps:
-
       - uses: actions/checkout@v3
-      
-      - run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      - run: docker build -t akashjdongre/react-app-img-dev:latest -f dockerfile.dev .
+      - name: Login to Docker Hub
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      - run: docker push akashjdongre/react-app-img-dev:latest
+      - name: Build Docker image
+        run: docker build -t akashjdongre/react-app-img-dev:latest -f dockerfile.dev .
+
+      - name: Push Docker image
+        run: docker push akashjdongre/react-app-img-dev:latest
 
       - name: Create Dockerrun file
         run: |
           cat > Dockerrun.aws.json << 'EOF'
           {
-            "AWSEBDockerrunVersion": 1,
+            "AWSEBDockerrunVersion": "1",
             "Image": {
               "Name": "akashjdongre/react-app-img-dev:latest",
               "Update": "true"
             },
             "Ports": [
               {
-                "ContainerPort": 80
+                "ContainerPort": "80"
               }
             ]
           }
           EOF
-      
-      - name: Debug Dockerrun
-        run: |
-          cat Dockerrun.aws.json
-          file Dockerrun.aws.json
 
-      # Zip only Docker config
+      - name: Debug Dockerrun
+        run: cat Dockerrun.aws.json
+
       - name: Zip deployment package
-        run: zip -r deploy.zip Dockerrun.aws.json
+        run: zip deploy.zip Dockerrun.aws.json
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v18
-        
         with:
           application_name: "react frontent"
           environment_name: Reactfrontent-env
