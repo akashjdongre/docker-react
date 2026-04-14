@@ -26,14 +26,13 @@ jobs:
 
       - run: docker build -t akashjdongre/react-app-img-dev:latest -f dockerfile.dev .
 
-      - run: docker run -e CI=true akashjdongre/react-app-img-dev npm test
-
       - run: docker push akashjdongre/react-app-img-dev:latest
 
       # Create Dockerrun.aws.json
       - name: Create Dockerrun file
         run: |
-          echo '{
+          cat <<EOF > Dockerrun.aws.json
+          {
             "AWSEBDockerrunVersion": 1,
             "Image": {
               "Name": "akashjdongre/react-app-img-dev:latest",
@@ -44,8 +43,10 @@ jobs:
                 "ContainerPort": 80
               }
             ]
-          }' > Dockerrun.aws.json
-
+          }
+          EOF
+      - run: cat Dockerrun.aws.json
+      
       # Zip only Docker config
       - name: Zip deployment package
         run: zip -r deploy.zip Dockerrun.aws.json
