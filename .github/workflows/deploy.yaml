@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: docker login -u ${{ secrets.DOCKER_USERNAME  }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker build -t react-app-img-dev -f dockerfile.dev .
+      - run: docker build -t react-app-img-dev:latest -f dockerfile.dev .
       - run: docker run -e CI=true react-app-img-dev npm test
 
       # Push image to Docker Hub
@@ -33,7 +33,7 @@ jobs:
           echo '{
             "AWSEBDockerrunVersion": 1,
             "Image": {
-              "Name": "akashjdongre/react-app-img-dev",
+              "Name": "akashjdongre/react-app-img-dev:latest",
               "Update": "true"
             },
             "Ports": [
