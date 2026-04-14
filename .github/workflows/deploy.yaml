@@ -20,12 +20,14 @@ jobs:
     #---- CI : Continuous Integration-----#
     steps:
       - uses: actions/checkout@v3
-      - run: docker login -u ${{ secrets.DOCKER_USERNAME  }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker build -t react-app-img-dev:latest -f dockerfile.dev .
-      - run: docker run -e CI=true react-app-img-dev npm test
+      
+      - run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      # Push image to Docker Hub
-      - run: docker push akashjdongre/react-app-img-dev
+      - run: docker build -t akashjdongre/react-app-img-dev:latest -f dockerfile.dev .
+
+      - run: docker run -e CI=true akashjdongre/react-app-img-dev npm test
+
+      - run: docker push akashjdongre/react-app-img-dev:latest
 
       # Create Dockerrun.aws.json
       - name: Create Dockerrun file
@@ -51,7 +53,7 @@ jobs:
         uses: einaregilsson/beanstalk-deploy@v18
         
         with:
-          application_name: "react frontent"
+          application_name: react-frontent
           environment_name: Reactfrontent-env
           existing_bucket_name: elasticbeanstalk-eu-north-1-994878981390
           region: eu-north-1
