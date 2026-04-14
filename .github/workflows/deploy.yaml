@@ -21,11 +21,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: docker login -u ${{ secrets.DOCKER_USERNAME  }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker build -t react-app-img-dev -f dockerfile.dev .
+      - run: docker build -t react-app-img-dev -f Dockerfile.dev .
       - run: docker run -e CI=true react-app-img-dev npm test
-
+          
+      - run: npm install
+      - run: npm run build
+      
       - name: Generate deployment package and Push Docker Image
-        run: zip -r deploy.zip . -x '*.git*'
+        run: zip -r deploy.zip build/
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v18
@@ -37,6 +40,5 @@ jobs:
           region: eu-north-1
           version_label: ${{ github.sha }}
           deployment_package: deploy.zip
-          
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
